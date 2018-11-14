@@ -19,6 +19,12 @@ public class Assets {
 		loadBackObjects();
 		USE_OBJECT.add(new Texture(Gdx.files.internal("../core/assets/torch_1.png")));
 		SPRITESHEETS.put("GothLoli_Spritesheet2.png", new Texture(Gdx.files.internal("../core/assets/GothLoli_Spritesheet2.png")));
+		SPRITESHEETS.put("testSheet.png", new Texture(Gdx.files.internal("../core/assets/testSheet.png")));
+		SPRITESHEETS.put("moukou.png", new Texture(Gdx.files.internal("../core/assets/moukou.png")));
+		SPRITESHEETS.put("remilia.png", new Texture(Gdx.files.internal("../core/assets/remilia.png")));
+		SPRITESHEETS.put("chen.png", new Texture(Gdx.files.internal("../core/assets/chen.png")));
+		SPRITESHEETS.put("marisa.png", new Texture(Gdx.files.internal("../core/assets/marisa.png")));
+		SPRITESHEETS.put("basesprite.png", new Texture(Gdx.files.internal("../core/assets/basesprite.png")));
 	}
 	
 	private static void loadBlocks() {

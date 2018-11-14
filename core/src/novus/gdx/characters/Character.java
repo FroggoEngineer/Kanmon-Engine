@@ -43,6 +43,8 @@ public class Character {
 	private boolean right, down;
 	
 	private PointLight pl;
+	private float lightChange = 1f;
+	private float sightRadius = 0;
 	
 	final private float RENDER_TO_WORLD = 1/96f;
 	final private float WORLD_TO_RENDER = 96f;
@@ -58,6 +60,7 @@ public class Character {
 		this.y = y;
 		
 		//Create body
+		load(filePath, rh);
 		BodyDef def = new BodyDef();
 		def.type = BodyDef.BodyType.DynamicBody;
 		float bodyX = ((float) x)/96 + this.width;
@@ -72,11 +75,19 @@ public class Character {
 		fixt.density = 1.f;
 		body.createFixture(fixt);
 		shape.dispose();
-		load(filePath, rh);
+		
+		setLight(rh);
+		
 		this.levelWorld = levelWorld;
 		//Create animations
 		//TODO: Swap out for the improved general animation system
 		
+	}
+	
+	private void setLight(RayHandler rh) {
+		pl = new PointLight(rh, 256, new Color(1f, 1f, 1f, 0.6f), sightRadius*RENDER_TO_WORLD, body.getPosition().x, body.getPosition().y + height/4);
+		pl.setSoft(true);
+		pl.setStaticLight(true);
 	}
 	
 	private void load(String filePath, RayHandler rh) {
@@ -93,11 +104,9 @@ public class Character {
 			anim = new Animation("../core/assets/animations/" + second[1]);
 			height = Float.parseFloat(third[1]);
 			width = Float.parseFloat(fourth[1]);
-			float sightRadius = Integer.parseInt(fifth[1]);
+			sightRadius = Integer.parseInt(fifth[1]);
 			
-			pl = new PointLight(rh, 256, new Color(1f, 1f, 1f, 0.6f), sightRadius*RENDER_TO_WORLD, body.getPosition().x, body.getPosition().y + height/4);
-			pl.setSoft(true);
-			pl.setStaticLight(true);
+			
 			
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -117,7 +126,7 @@ public class Character {
 		}
 	}
 	
-	public void moveY(float my) {
+	public void jumpY(float my) {
 		//body.setLinearVelocity(body.getLinearVelocity().x, my);
 		if(!isJumping && !isFalling)
 			body.applyLinearImpulse(0, my, body.getPosition().x, body.getPosition().y, true);
@@ -125,6 +134,10 @@ public class Character {
 			down = true;
 		else
 			down = false;
+	}
+	
+	public void moveY(float my) {
+		body.setLinearVelocity(body.getLinearVelocity().x, my);
 	}
 	
 	public TextureRegion getTex() {
@@ -144,11 +157,11 @@ public class Character {
 	}
 	
 	public int getX() {
-		return x;		
+		return (int) (body.getPosition().x * WORLD_TO_RENDER);		
 	}
 		
 	public int getY() {
-		return y;
+		return (int) (body.getPosition().y * WORLD_TO_RENDER);
 	}
 		
 	public int getPrevX() {
@@ -239,6 +252,11 @@ public class Character {
 		
 		pl.setPosition(body.getPosition().x, body.getPosition().y + height/4);
 		//pl.setDistance(0);
+		if(pl.getDistance()*WORLD_TO_RENDER < 570 || pl.getDistance()*WORLD_TO_RENDER > 630)
+			lightChange *= -1;
+		pl.setDistance((pl.getDistance()*WORLD_TO_RENDER - lightChange)*RENDER_TO_WORLD);
+		//System.err.println(pl.getDistance()*WORLD_TO_RENDER);
+		System.out.println(pl.getPosition().x + " : " + pl.getPosition().y);
 		pl.update();
 	}
 	

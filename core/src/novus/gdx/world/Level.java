@@ -1,6 +1,10 @@
 package novus.gdx.world;
 
 import com.badlogic.gdx.physics.box2d.World;
+
+import box2dLight.RayHandler;
+import novus.gdx.assets.PlaceObject;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 
@@ -11,6 +15,8 @@ public class Level {
 	
 	private int[][] typeMatrix;
 	private int[][] backMatrix;
+	private PlaceObject[][] objectMatrix;
+	
 	private Block[][] worldBlocks; //Blocks used to create the physics world in Box2D
 	private int spawnX, spawnY;
 	private int SPAWN_ID = 17;
@@ -32,6 +38,7 @@ public class Level {
 			
 			typeMatrix = new int[numOfRows][numOfColumns];
 			backMatrix = new int[numOfRows][numOfColumns];
+			objectMatrix = new PlaceObject[numOfRows][numOfColumns];
 			
 			for(int y = 0; y < numOfRows; y++) {
 				String[] rowArray = in.readLine().split(" ");
@@ -54,6 +61,7 @@ public class Level {
 				for(int x = 0; x < rowArray.length; x++) {
 					int val = Integer.parseInt(rowArray[x]);
 					backMatrix[y][x] = val;
+					objectMatrix[y][x] = null;
 				}
 			}
 			
@@ -106,5 +114,16 @@ public class Level {
 	
 	public int getBackValue(int y, int x) {
 		return backMatrix[y][x];
+	}
+	
+	public PlaceObject getObjectValue(int y, int x) {
+		return objectMatrix[y][x];
+	}
+	
+	public void setLantern(int y, int x, RayHandler rayhandler) {
+		y = y/64;
+		x = x/64;
+		System.out.println(rayhandler.toString());
+		objectMatrix[-x][y] = new PlaceObject("../core/assets/interact/lantern.txt", rayhandler, y, x);
 	}
 }

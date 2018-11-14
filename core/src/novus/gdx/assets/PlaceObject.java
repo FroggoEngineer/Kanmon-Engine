@@ -34,6 +34,7 @@ public class PlaceObject {
 	public PlaceObject(String filePath, RayHandler rh, int x, int y) {
 		this.x = x;
 		this.y = y;
+		
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(filePath));
 			useLight = Boolean.parseBoolean(in.readLine().split(" ")[1]);
@@ -54,12 +55,14 @@ public class PlaceObject {
 				currentRadius = minRadius;
 				
 				posX = x*64 * RENDER_TO_WORLD + 32*RENDER_TO_WORLD;
-				posY = -y*64 * RENDER_TO_WORLD + 128*RENDER_TO_WORLD;
-				
-				light = new PointLight(rh, 256, new Color(r, g, b, a), minRadius*RENDER_TO_WORLD, posX, posY);
+				posY = -y*64 * RENDER_TO_WORLD + -48*RENDER_TO_WORLD;
+				System.out.println(rh.toString());
+				light = new PointLight(rh, 256, new Color(r, g, b, a), minRadius*RENDER_TO_WORLD, posX, -posY);
 				light.setSoft(true);
 				light.setStaticLight(true);
 				light.setXray(false);
+				light.update();
+				rh.update();
 			}
 			
 			if(useAnimation) {
@@ -86,9 +89,10 @@ public class PlaceObject {
 		}
 		
 		currentRadius += updateStep;
+		System.err.println(light.getPosition().x + " : " + light.getPosition().y);
 		light.setDistance(currentRadius*RENDER_TO_WORLD);
 		light.update();
-		System.out.println(currentRadius);
+		//System.out.println(currentRadius);
 	}
 	
 	public int getX() {

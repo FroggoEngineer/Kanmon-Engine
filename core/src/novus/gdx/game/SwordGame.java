@@ -1,5 +1,8 @@
 package novus.gdx.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -36,6 +39,7 @@ public class SwordGame extends ApplicationAdapter {
 	Texture img;
 	
 	private boolean showDebug = false;
+	private boolean showLight = true;
 	private final float WORLD_TO_RENDER = 96f;
 	private final float RENDER_TO_WORLD = 1/96f;
 	private final float STEP = 1/60f;
@@ -64,24 +68,28 @@ public class SwordGame extends ApplicationAdapter {
 	private ParticleEffect snow;
 	
 	private Animation testAni;
+	
+	private List<novus.gdx.characters.Character> charList = new ArrayList<>();
 	private novus.gdx.characters.Character testChar;
+	private novus.gdx.characters.Character remiChar;
 	
 	PlaceObject po1, po2;
 	
 	@Override
 	public void create () {
-		//Körs vid startup, skapa de saker som behövs vid startup enbart, resterande kan ske på andra ställen.
+		//Kî’šs vid startup, skapa de saker som behî’žs vid startup enbart, resterande kan ske pï¿½ andra stèˆlen.
 		Box2D.init();
-		box2DWorld = new World(new Vector2(0, -10f), true);
+		box2DWorld = new World(new Vector2(0, 0), true);
 		
 		rayhandler = new RayHandler(box2DWorld);
 		rayhandler.setShadows(true);
 		rayhandler.setAmbientLight(0,0,0, 0.0f);
 		rayhandler.setBlurNum(2);
-//		rayhandler.useDiffuseLight(true);
+		rayhandler.setCulling(true);
+		RayHandler.useDiffuseLight(true);
 		
 		//create level
-		world = new Level("../core/assets/MansionTest", box2DWorld, RENDER_TO_WORLD);
+		world = new Level("../core/assets/touhou_test", box2DWorld, RENDER_TO_WORLD);
 		
 		po1 = new PlaceObject("../core/assets/interact/lantern.txt", rayhandler, 9, 12);
 		po2 = new PlaceObject("../core/assets/interact/lantern.txt", rayhandler, 12, 12);
@@ -108,9 +116,11 @@ public class SwordGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		
 		//testAni = new Animation("../core/assets/gothloli.txt");
-		testChar = new novus.gdx.characters.Character("../core/assets/characters/gothloli.txt", world.getSpawnX()*64, -1*world.getSpawnY()*64, box2DWorld, rayhandler, world);
+		testChar = new novus.gdx.characters.Character("../core/assets/characters/marisa.txt", world.getSpawnX()*64, -1*world.getSpawnY()*64, box2DWorld, rayhandler, world);
+		charList.add(testChar);
 		
-		cam = new Camera(testChar, width, height, world);
+		
+		cam = new Camera(null, width, height, world);
 	}
 
 	@Override
@@ -161,7 +171,17 @@ public class SwordGame extends ApplicationAdapter {
     	batch.draw(po1.getTex(), po1.getX()*64, -po1.getY()*64);
     	batch.draw(po2.getTex(), po2.getX()*64, -po2.getY()*64);
     	
-		
+    	//TODO: Draw interactive objects here
+    	for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
+			for(int x = 0; x < world.getMapWidth(); x++) {
+				if(world.getObjectValue(y, x) != null) {
+					int h = world.getObjectValue(y, x).getTex().getHeight();
+					int drawY = -(y*64) - (h-64);
+		    		batch.draw(world.getObjectValue(y, x).getTex(), x*64, drawY);
+		    	}	
+			}
+		}
+    	
     	//Render the map from map object
     	for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
 			for(int x = 0; x < world.getMapWidth(); x++) {
@@ -172,13 +192,24 @@ public class SwordGame extends ApplicationAdapter {
 		}
     	
     	//batch.draw(testAni.getTex(),camPosX*WORLD_TO_RENDER, camPosY*WORLD_TO_RENDER - worldCamera.viewportHeight/2  + 32);
-    	batch.draw(testChar.getTex(), (testChar.getBoxX()-testChar.getWidth()/2)*WORLD_TO_RENDER, testChar.getBoxY()*WORLD_TO_RENDER);
+    	for(int i = 0; i < charList.size(); ++i) {
+    		if(charList.get(i) != null) {
+    			batch.draw(charList.get(i).getTex(), (charList.get(i).getBoxX()-charList.get(i).getWidth()/2)*WORLD_TO_RENDER, charList.get(i).getBoxY()*WORLD_TO_RENDER);
+    		}
+    	}
+    	
+    	//TODO: Draw fore layer here!
+    	
+    	//batch.draw(testChar.getTex(), (testChar.getBoxX()-testChar.getWidth()/2)*WORLD_TO_RENDER, testChar.getBoxY()*WORLD_TO_RENDER);
     	snow.draw(batch, STEP);
     	
 		batch.end();
 		
-		rayhandler.setCombinedMatrix(cam.getLight());
-        rayhandler.updateAndRender();
+		if(showLight) {
+			rayhandler.setCombinedMatrix(cam.getLight());
+	        rayhandler.updateAndRender();
+		}
+		
         
         if(showDebug) {
         	cameraBox2D = cam.getWorld().combined.cpy();
@@ -213,25 +244,71 @@ public class SwordGame extends ApplicationAdapter {
 			//Stop moving in X
 			testChar.moveX(0);
 		}
+		if(remiChar != null) {
+			if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+				//Move left
+//				testAni.changeAnimation(1);
+				remiChar.moveX(-2);
+				//camPosX -= 0.1f;
+			} else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+				//Move right
+//				testAni.changeAnimation(0);
+				remiChar.moveX(2);
+				//camPosX += 0.1f;
+			} else {
+				//Stop moving in X
+				remiChar.moveX(0);
+			}
+			
+			if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+				//Jump
+//				testAni.changeAnimation(3);
+				remiChar.moveY(2);
+				//camPosY += 0.1f;
+			} else if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+				remiChar.moveY(-2);
+			} else {
+				remiChar.moveY(0);
+			}
+			
+		}
+		
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			//Jump
 //			testAni.changeAnimation(3);
-			testChar.moveY(1f);
-			camPosY += 0.1f;
+			testChar.moveY(2);
+			//camPosY += 0.1f;
 		} else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+			testChar.moveY(-2);
 //			testAni.changeAnimation(2);
-			camPosY -= 0.1f;
+			//camPosY -= 0.1f;
+		} else {
+			testChar.moveY(0);
 		}
 		
-		if(Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+		if(Gdx.input.isKeyJustPressed(Input.Keys.G)) {
 			showDebug = !showDebug;
-			System.out.println("CamX: " + camPosX);
-			System.out.println("CamY: " + camPosY);
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+			showLight = !showLight;
 		}
 		
 		if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 			testSound.play();
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
+			remiChar = new novus.gdx.characters.Character("../core/assets/characters/remilia.txt", charList.get(0).getX(), charList.get(0).getY(), box2DWorld, rayhandler, world);
+			charList.add(remiChar);
+		}
+		
+		if(Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+			//Move left
+//			testAni.changeAnimation(1);
+			System.out.println(rayhandler.toString());
+			world.setLantern(charList.get(0).getX(), charList.get(0).getY(), rayhandler);
 		}
 	}
 
@@ -253,8 +330,15 @@ public class SwordGame extends ApplicationAdapter {
 		
 		//lights
 		//----------------------
-		po1.update();
-		po2.update();
+		//po1.update();
+		//po2.update();
+		for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
+			for(int x = 0; x < world.getMapWidth(); x++) {
+				if(world.getObjectValue(y, x) != null) {
+		    		world.getObjectValue(y, x).update();
+		    	}	
+			}
+		}
 		//----------------------
 		
 		camX = 0 + 0;
@@ -265,7 +349,11 @@ public class SwordGame extends ApplicationAdapter {
 		cam.update();
 		
 		//testAni.update();
-		testChar.update();
+		//testChar.update();
+		for(int i = 0; i < charList.size(); ++i) {
+			if(charList.get(i) != null)
+				charList.get(i).update();
+		}
 	}
 	
 }

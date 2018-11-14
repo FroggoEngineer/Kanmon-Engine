@@ -76,7 +76,7 @@ public class Animation {
 	}
 	
 	public void changeAnimation(int anim) {
-		if(currentAnimation != anim) {
+		if(currentAnimation != anim && anim < nrOfAnims) {
 			currentAnimation = anim;
 			ticks = 0;
 			currentFrame = 0;

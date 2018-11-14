@@ -8,9 +8,9 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		
-		config.title = "Legendary Quest";
-		config.width = 1280;
-		config.height = 800;
+		config.title = "Kanmon Engine";
+		config.width = 832;
+		config.height = 640;
 		
 		new LwjglApplication(new SwordGame(), config);
 	}
