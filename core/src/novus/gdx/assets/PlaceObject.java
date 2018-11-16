@@ -56,7 +56,6 @@ public class PlaceObject {
 				
 				posX = x*64 * RENDER_TO_WORLD + 32*RENDER_TO_WORLD;
 				posY = -y*64 * RENDER_TO_WORLD + -48*RENDER_TO_WORLD;
-				System.out.println(rh.toString());
 				light = new PointLight(rh, 256, new Color(r, g, b, a), minRadius*RENDER_TO_WORLD, posX, -posY);
 				light.setSoft(true);
 				light.setStaticLight(true);
@@ -74,7 +73,6 @@ public class PlaceObject {
 			if(useParticles) {
 				
 			}
-			System.out.println("Finished loading PlaceObject!");
 			in.close();
 		} catch (Exception e) {
 			
@@ -92,7 +90,6 @@ public class PlaceObject {
 		System.err.println(light.getPosition().x + " : " + light.getPosition().y);
 		light.setDistance(currentRadius*RENDER_TO_WORLD);
 		light.update();
-		//System.out.println(currentRadius);
 	}
 	
 	public int getX() {

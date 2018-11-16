@@ -256,7 +256,6 @@ public class Character {
 			lightChange *= -1;
 		pl.setDistance((pl.getDistance()*WORLD_TO_RENDER - lightChange)*RENDER_TO_WORLD);
 		//System.err.println(pl.getDistance()*WORLD_TO_RENDER);
-		System.out.println(pl.getPosition().x + " : " + pl.getPosition().y);
 		pl.update();
 	}
 	

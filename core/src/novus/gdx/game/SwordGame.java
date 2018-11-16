@@ -32,8 +32,6 @@ import novus.gdx.world.Level;
 
 public class SwordGame extends ApplicationAdapter {
 	SpriteBatch batch;
-	private BitmapFont font;
-	private novus.gdx.characters.Character dude;
 	private Texture backImage;
 	private Level world;
 	Texture img;
@@ -46,17 +44,14 @@ public class SwordGame extends ApplicationAdapter {
 	
 	//------------------------------------
 	private World box2DWorld;
-	private ContactListener cl;
-	private Contact contact;
 	
 	private RayHandler rayhandler;
-	private PointLight pl;
 	
 	private Texture[] blockTex;
 	
 	private Matrix4 cameraBox2D;
 	private Box2DDebugRenderer debugRender;
-	private OrthographicCamera worldCamera, lightCamera;
+//	private OrthographicCamera worldCamera, lightCamera;
 	private Camera cam;
 	
 	private Sound testSound;
@@ -67,7 +62,6 @@ public class SwordGame extends ApplicationAdapter {
 	
 	private ParticleEffect snow;
 	
-	private Animation testAni;
 	
 	private List<novus.gdx.characters.Character> charList = new ArrayList<>();
 	private novus.gdx.characters.Character testChar;
@@ -77,13 +71,13 @@ public class SwordGame extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-		//Ks vid startup, skapa de saker som behs vid startup enbart, resterande kan ske p� andra st舁len.
+		//Kî’šs vid startup, skapa de saker som behî’žs vid startup enbart, resterande kan ske pï¿½ andra stèˆ�len.
 		Box2D.init();
 		box2DWorld = new World(new Vector2(0, 0), true);
 		
 		rayhandler = new RayHandler(box2DWorld);
 		rayhandler.setShadows(true);
-		rayhandler.setAmbientLight(0,0,0, 0.0f);
+		rayhandler.setAmbientLight(0.9f, 0.9f, 0.9f, 1f);
 		rayhandler.setBlurNum(2);
 		rayhandler.setCulling(true);
 		RayHandler.useDiffuseLight(true);
@@ -97,8 +91,8 @@ public class SwordGame extends ApplicationAdapter {
 		float width = Gdx.graphics.getWidth();
 		float height = Gdx.graphics.getHeight();
 		
-		worldCamera = new OrthographicCamera(width, height);
-		lightCamera = new OrthographicCamera(width*RENDER_TO_WORLD, height*RENDER_TO_WORLD);
+//		worldCamera = new OrthographicCamera(width, height);
+//		lightCamera = new OrthographicCamera(width*RENDER_TO_WORLD, height*RENDER_TO_WORLD);
 		debugRender = new Box2DDebugRenderer();
 		Assets.loadTextures();
 		blockTex = new Texture[4];
@@ -109,9 +103,9 @@ public class SwordGame extends ApplicationAdapter {
 		
         backImage = new Texture(Gdx.files.internal("../core/assets/background.png"));
         
-        snow = new ParticleEffect();
-        snow.load(Gdx.files.internal("../core/assets/snow"), Gdx.files.internal("../core/assets"));
-        snow.start();
+//        snow = new ParticleEffect();
+//        snow.load(Gdx.files.internal("../core/assets/snow"), Gdx.files.internal("../core/assets"));
+//        snow.start();
         
 		batch = new SpriteBatch();
 		
@@ -168,8 +162,8 @@ public class SwordGame extends ApplicationAdapter {
 			}
 		}
     	
-    	batch.draw(po1.getTex(), po1.getX()*64, -po1.getY()*64);
-    	batch.draw(po2.getTex(), po2.getX()*64, -po2.getY()*64);
+    	//batch.draw(po1.getTex(), po1.getX()*64, -po1.getY()*64);
+    	//batch.draw(po2.getTex(), po2.getX()*64, -po2.getY()*64);
     	
     	//TODO: Draw interactive objects here
     	for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
@@ -201,7 +195,7 @@ public class SwordGame extends ApplicationAdapter {
     	//TODO: Draw fore layer here!
     	
     	//batch.draw(testChar.getTex(), (testChar.getBoxX()-testChar.getWidth()/2)*WORLD_TO_RENDER, testChar.getBoxY()*WORLD_TO_RENDER);
-    	snow.draw(batch, STEP);
+//    	snow.draw(batch, STEP);
     	
 		batch.end();
 		
@@ -307,7 +301,6 @@ public class SwordGame extends ApplicationAdapter {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.T)) {
 			//Move left
 //			testAni.changeAnimation(1);
-			System.out.println(rayhandler.toString());
 			world.setLantern(charList.get(0).getX(), charList.get(0).getY(), rayhandler);
 		}
 	}
@@ -317,21 +310,17 @@ public class SwordGame extends ApplicationAdapter {
 		//update characters from input
 		
 		box2DWorld.step(STEP, 3, 3);
-//		camPosX = 19.5f;
-//		camPosY = -7.5f;
+		
 		camPosX = cam.getWorld().position.x;
 		camPosY = cam.getWorld().position.y;
 		float camX = camPosX*WORLD_TO_RENDER + 0;
 		float camY = camPosY*WORLD_TO_RENDER + 0;
 
-//		worldCamera.position.set(camX, camY, 0);
-//		worldCamera.update();
-		snow.setPosition(camPosX-cam.getWorld().viewportWidth/2, camPosY+cam.getWorld().viewportHeight/2);
+//		snow.setPosition(camPosX-cam.getWorld().viewportWidth/2, camPosY+cam.getWorld().viewportHeight/2);
 		
 		//lights
 		//----------------------
-		//po1.update();
-		//po2.update();
+		//TODO: Switch this to thread, optimize so that you don't search entire map
 		for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
 			for(int x = 0; x < world.getMapWidth(); x++) {
 				if(world.getObjectValue(y, x) != null) {
@@ -341,15 +330,15 @@ public class SwordGame extends ApplicationAdapter {
 		}
 		//----------------------
 		
+		
 		camX = 0 + 0;
 		camY = 0 + 0;
-		lightCamera.position.set(camX, camY, 0);
-		lightCamera.update();
+//		lightCamera.position.set(camX, camY, 0);
+//		lightCamera.update();
 		
 		cam.update();
 		
-		//testAni.update();
-		//testChar.update();
+		//TODO: Switch this to thread
 		for(int i = 0; i < charList.size(); ++i) {
 			if(charList.get(i) != null)
 				charList.get(i).update();
