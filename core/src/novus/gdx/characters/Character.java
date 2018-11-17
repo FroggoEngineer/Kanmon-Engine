@@ -251,11 +251,11 @@ public class Character {
 		anim.update();
 		
 		pl.setPosition(body.getPosition().x, body.getPosition().y + height/4);
-		//pl.setDistance(0);
+		
 		if(pl.getDistance()*WORLD_TO_RENDER < 570 || pl.getDistance()*WORLD_TO_RENDER > 630)
 			lightChange *= -1;
 		pl.setDistance((pl.getDistance()*WORLD_TO_RENDER - lightChange)*RENDER_TO_WORLD);
-		//System.err.println(pl.getDistance()*WORLD_TO_RENDER);
+		
 		pl.update();
 	}
 	

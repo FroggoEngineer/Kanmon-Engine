@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
@@ -30,11 +32,10 @@ import novus.gdx.graphics.Animation;
 import novus.gdx.graphics.Camera;
 import novus.gdx.world.Level;
 
-public class SwordGame extends ApplicationAdapter {
+public class GameScreen extends ScreenAdapter {
 	SpriteBatch batch;
 	private Texture backImage;
 	private Level world;
-	Texture img;
 	
 	private boolean showDebug = false;
 	private boolean showLight = true;
@@ -47,11 +48,7 @@ public class SwordGame extends ApplicationAdapter {
 	
 	private RayHandler rayhandler;
 	
-	private Texture[] blockTex;
-	
-	private Matrix4 cameraBox2D;
 	private Box2DDebugRenderer debugRender;
-//	private OrthographicCamera worldCamera, lightCamera;
 	private Camera cam;
 	
 	private Sound testSound;
@@ -60,7 +57,7 @@ public class SwordGame extends ApplicationAdapter {
 	float camPosX = 1;
 	float camPosY = 1;
 	
-	private ParticleEffect snow;
+	//private ParticleEffect snow;
 	
 	
 	private List<novus.gdx.characters.Character> charList = new ArrayList<>();
@@ -69,7 +66,13 @@ public class SwordGame extends ApplicationAdapter {
 	
 	PlaceObject po1, po2;
 	
-	@Override
+	final GameHandler game;
+	
+	public GameScreen(GameHandler game) {
+		this.game = game;
+		create();
+	}
+	
 	public void create () {
 		//Kî’šs vid startup, skapa de saker som behî’žs vid startup enbart, resterande kan ske pï¿½ andra stèˆ�len.
 		Box2D.init();
@@ -83,10 +86,7 @@ public class SwordGame extends ApplicationAdapter {
 		RayHandler.useDiffuseLight(true);
 		
 		//create level
-		world = new Level("../core/assets/touhou_test", box2DWorld, RENDER_TO_WORLD);
-		
-		po1 = new PlaceObject("../core/assets/interact/lantern.txt", rayhandler, 9, 12);
-		po2 = new PlaceObject("../core/assets/interact/lantern.txt", rayhandler, 12, 12);
+		world = new Level("../core/assets/TouhouVS2", box2DWorld, RENDER_TO_WORLD);
 		
 		float width = Gdx.graphics.getWidth();
 		float height = Gdx.graphics.getHeight();
@@ -94,12 +94,7 @@ public class SwordGame extends ApplicationAdapter {
 //		worldCamera = new OrthographicCamera(width, height);
 //		lightCamera = new OrthographicCamera(width*RENDER_TO_WORLD, height*RENDER_TO_WORLD);
 		debugRender = new Box2DDebugRenderer();
-		Assets.loadTextures();
-		blockTex = new Texture[4];
-        blockTex[0] =  new Texture(Gdx.files.internal("../core/assets/block1.png"));
-        blockTex[1] =  new Texture(Gdx.files.internal("../core/assets/block2.png"));
-        blockTex[2] =  new Texture(Gdx.files.internal("../core/assets/tree.png"));
-        blockTex[3] =  new Texture(Gdx.files.internal("../core/assets/grass.png"));
+		//Assets.loadTextures();
 		
         backImage = new Texture(Gdx.files.internal("../core/assets/background.png"));
         
@@ -118,7 +113,7 @@ public class SwordGame extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render () {
+	public void render(float delta) {
 		
 		//update function
 		/*
@@ -147,10 +142,6 @@ public class SwordGame extends ApplicationAdapter {
 		
 		batch.draw(backImage,camPosX - cam.getWorld().viewportWidth/2 ,camPosY - cam.getWorld().viewportHeight/2);
     	
-    	//left
-    	//batch.draw(charTex, loli.getBoxX()*WORLD_TO_RENDER, loli.getBoxY()*WORLD_TO_RENDER);
-    	//dude.draw(batch, WORLD_TO_RENDER);
-    	
 		//Render the map from map object
     	for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
 			for(int x = 0; x < world.getMapWidth(); x++) {
@@ -161,9 +152,6 @@ public class SwordGame extends ApplicationAdapter {
 		    	}	
 			}
 		}
-    	
-    	//batch.draw(po1.getTex(), po1.getX()*64, -po1.getY()*64);
-    	//batch.draw(po2.getTex(), po2.getX()*64, -po2.getY()*64);
     	
     	//TODO: Draw interactive objects here
     	for(int y = world.getMapHeight() - 1; y >= 0 ; y--) {
@@ -181,7 +169,7 @@ public class SwordGame extends ApplicationAdapter {
 			for(int x = 0; x < world.getMapWidth(); x++) {
 				if(world.getValue(y, x) != 0) {
 		    		batch.draw(Assets.BLOCKS.get(world.getValue(y, x)), x*64, -y*64);
-		    	}	
+		    	}
 			}
 		}
     	
@@ -194,8 +182,7 @@ public class SwordGame extends ApplicationAdapter {
     	
     	//TODO: Draw fore layer here!
     	
-    	//batch.draw(testChar.getTex(), (testChar.getBoxX()-testChar.getWidth()/2)*WORLD_TO_RENDER, testChar.getBoxY()*WORLD_TO_RENDER);
-//    	snow.draw(batch, STEP);
+    	//snow.draw(batch, STEP);
     	
 		batch.end();
 		
@@ -206,9 +193,7 @@ public class SwordGame extends ApplicationAdapter {
 		
         
         if(showDebug) {
-        	cameraBox2D = cam.getWorld().combined.cpy();
-        	cameraBox2D.scl(WORLD_TO_RENDER);
-        	debugRender.render(box2DWorld, cameraBox2D);
+        	debugRender.render(box2DWorld, cam.getWorld().combined.cpy().scl(WORLD_TO_RENDER));
 //        	debugRender.render(box2DWorld, cam.getDebug());
         }
 	}
@@ -224,15 +209,16 @@ public class SwordGame extends ApplicationAdapter {
 	}
 	
 	private void input() {
+		int speed = 3;
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			//Move left
 //			testAni.changeAnimation(1);
-			testChar.moveX(-2);
+			testChar.moveX(-speed);
 			camPosX -= 0.1f;
 		} else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			//Move right
 //			testAni.changeAnimation(0);
-			testChar.moveX(2);
+			testChar.moveX(speed);
 			camPosX += 0.1f;
 		} else {
 			//Stop moving in X
@@ -242,12 +228,12 @@ public class SwordGame extends ApplicationAdapter {
 			if(Gdx.input.isKeyPressed(Input.Keys.A)) {
 				//Move left
 //				testAni.changeAnimation(1);
-				remiChar.moveX(-2);
+				remiChar.moveX(-speed);
 				//camPosX -= 0.1f;
 			} else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
 				//Move right
 //				testAni.changeAnimation(0);
-				remiChar.moveX(2);
+				remiChar.moveX(speed);
 				//camPosX += 0.1f;
 			} else {
 				//Stop moving in X
@@ -257,10 +243,10 @@ public class SwordGame extends ApplicationAdapter {
 			if(Gdx.input.isKeyPressed(Input.Keys.W)) {
 				//Jump
 //				testAni.changeAnimation(3);
-				remiChar.moveY(2);
+				remiChar.moveY(speed);
 				//camPosY += 0.1f;
 			} else if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-				remiChar.moveY(-2);
+				remiChar.moveY(-speed);
 			} else {
 				remiChar.moveY(0);
 			}
@@ -271,10 +257,10 @@ public class SwordGame extends ApplicationAdapter {
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			//Jump
 //			testAni.changeAnimation(3);
-			testChar.moveY(2);
+			testChar.moveY(speed);
 			//camPosY += 0.1f;
 		} else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			testChar.moveY(-2);
+			testChar.moveY(-speed);
 //			testAni.changeAnimation(2);
 			//camPosY -= 0.1f;
 		} else {

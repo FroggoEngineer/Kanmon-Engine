@@ -87,7 +87,6 @@ public class PlaceObject {
 		}
 		
 		currentRadius += updateStep;
-		System.err.println(light.getPosition().x + " : " + light.getPosition().y);
 		light.setDistance(currentRadius*RENDER_TO_WORLD);
 		light.update();
 	}
